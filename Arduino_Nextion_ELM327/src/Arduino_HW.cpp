@@ -1,0 +1,45 @@
+#include "Arduino_HW.h"
+
+void pinModeTotal(void)
+{
+    pinMode(PIN_CB1, OUTPUT);
+    pinMode(PIN_CB2, OUTPUT);
+    pinMode(PIN_CB3, OUTPUT);
+    pinMode(PIN_CB4, OUTPUT);
+    pinMode(PIN_CB5, OUTPUT);
+    pinMode(PIN_CB6, OUTPUT);
+    pinMode(PIN_CB7, OUTPUT);
+    pinMode(PIN_CB8, OUTPUT);
+    pinMode(PIN_CB9, OUTPUT);
+    pinMode(PIN_CB10, OUTPUT);
+    pinMode(PIN_CB11, OUTPUT);
+    pinMode(PIN_CB12, OUTPUT);
+    pinMode(PIN_CB13, OUTPUT);
+    pinMode(PIN_CB14, OUTPUT);
+    pinMode(PIN_CB15, OUTPUT);
+    pinMode(PIN_CB16, OUTPUT);
+    pinMode(PIN_CB17, OUTPUT);
+    pinMode(PIN_CB18, OUTPUT);
+    pinMode(PIN_CB19, OUTPUT);
+    pinMode(PIN_CB20, OUTPUT);
+    pinMode(PIN_CB21, OUTPUT);
+    pinMode(PIN_CB22, OUTPUT);
+    pinMode(PIN_CB23, OUTPUT);
+    pinMode(PIN_CB24, OUTPUT);
+    pinMode(PIN_CB25, OUTPUT);
+    pinMode(PIN_CB26, OUTPUT);
+    pinMode(PIN_CB27, OUTPUT);
+    pinMode(PIN_CB28, OUTPUT);
+    pinMode(PIN_CB29, OUTPUT);
+    pinMode(PIN_CB30, OUTPUT);
+    pinMode(PIN_CB31, OUTPUT);
+    pinMode(PIN_CB32, OUTPUT);
+    pinMode(PIN_CB33, OUTPUT);
+    pinMode(PIN_CB34, OUTPUT);
+    pinMode(PIN_CB35, OUTPUT);
+    pinMode(PIN_CB36, OUTPUT);
+    pinMode(PIN_CB37, OUTPUT);
+    pinMode(PIN_CB38, OUTPUT);
+    pinMode(PIN_CB39, OUTPUT);
+    pinMode(PIN_CB40, OUTPUT);
+}
