@@ -1,18 +1,19 @@
 #include "Nextion_screen.h"
+#include "elm327.h"
+
+ELM327 myELM;
 
 void setup() {
+
   pinModeTotal();
   nexInit();
-  elmSerial.begin(38400);
   nexRegisterCbk();
+  myELM.ELM327_init();
+  Serial.println(myELM.get("ati"));
 }
 
 void loop() {
 
   nexLoop(nex_listen_list);
 
-  if(elmSerial.available()>0)
-  {
-    Serial.print(char(elmSerial.read()));
-  }
 }
