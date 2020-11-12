@@ -1,4 +1,4 @@
-#include "Nextion_screen.h"
+#include "NexComponent.h"
 
 void setup() {
   pinModeTotal();
@@ -11,8 +11,4 @@ void loop() {
 
   nexLoop(nex_listen_list);
 
-  if(elmSerial.available()>0)
-  {
-    Serial.print(char(elmSerial.read()));
-  }
 }
