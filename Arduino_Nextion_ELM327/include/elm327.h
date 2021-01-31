@@ -24,6 +24,7 @@
 #define ELM327_h
 
 #include "Arduino.h"
+#include "Arduino_HW.h"
 #include "HardwareSerial.h"
 #include "PID.h"
 

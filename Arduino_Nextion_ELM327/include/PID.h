@@ -25,6 +25,13 @@
 #define PID_AIR_FLOW_RATE                 "01 10" // Implemented
 #define PID_THROTTLE                      "01 11" // Implemented
 #define PID_COMMANDED_SECONDARY_AIR       "01 12" // Bit Encoded
+#define PID_BAT_VOL                       "AT RV"
+
+#define RES_PID_RPM                       "41 0C" // Implemented
+#define RES_PID_COOLANT_TEMP              "41 05" // Implemented
+#define RES_PID_THROTTLE                  "41 11" // Implemented
+#define RES_PID_FUEL_INJECTION_TIMING     "41 5D" // (((A*256)+B)-26,880)/128
+
 
 // These are a special case. A contains oxygen sensor, B contains fuel trim.
 #define PID_OXYGEN_SENSOR_VOLTAGE_B1_S1   "01 14" // A/200

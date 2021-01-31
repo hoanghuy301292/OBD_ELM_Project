@@ -15,7 +15,8 @@ void ELM327:: ELM327_init(void)
 Retry:
   result = query("ATI");
   // Should abstract this.
-  if (result.substring(0,6)=="ELM327"){
+  if ( strstr(result.c_str(), "ELM327"))
+  {
     // Great. We're connected.
     Serial.println("ELM connected");
   }
@@ -39,9 +40,9 @@ String ELM327::query(String command){
   bool spinlock = true;
   unsigned long time;
   elmSerial.println(command);
-
   time = millis();
-  
+  bool firstDelayFlag = TRUE;
+
   // Spinlock's are perfectly valid :D
   while(spinlock){
     if(millis() > (time + 4000)){
@@ -58,13 +59,19 @@ String ELM327::query(String command){
     byte inData = elmSerial.read();
     char inChar = char(inData);
     inString = inString + inChar;
+    delay(2);
+    if ( strstr(inString.c_str(),"SEARCHING") != '\0' && firstDelayFlag == TRUE ){
+      delay(2000);
+      firstDelayFlag = FALSE;
+    }
   }
-
+  Serial.println(inString);
   inString.replace(command,"");
   inString.replace(">","");
   inString.replace("OK","");
 
   // Some of these look like errors that ought to be handled..
+  inString.replace("...","");
   inString.replace("STOPPED","");
   inString.replace("SEARCHING","");
   inString.replace("NO DATA","");
@@ -80,80 +87,76 @@ String ELM327::query(String command){
 String ELM327::process(String command, String result){
 
   long DisplayValue;
-//   int ByteCount=0;
   long A;
   int B;
   String WorkingString="";
+  size_t pos;
 
   //Check which OBD Command was sent and calculate VALUE
   //Calculate RPM I.E Returned bytes wil be 41 0C 1B E0
-  if (command == PID_RPM){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    WorkingString = result.substring(11,13);
-    B = strtol(WorkingString.c_str(),NULL,0);
+  if (command == PID_RPM)
+  {
+    pos = 0;
+    pos = result.indexOf(RES_PID_RPM, pos);
+    result = result.substring(pos + 6, result.length());
 
-   DisplayValue = ((A * 256)+B)/4;
-   return String(DisplayValue) + " rpm";
+    WorkingString = result.substring(0, 2);
+    // Serial.println(WorkingString);
+    A = strtol(WorkingString.c_str(), NULL, 16);
+    // Serial.println(A);
+
+    WorkingString = result.substring(3, 5);
+    // Serial.println(WorkingString);
+    B = strtol(WorkingString.c_str(), NULL, 16);
+    // Serial.println(B);
+   
+    DisplayValue = ( ( A * 256 ) + B ) / 4;
+    return String(DisplayValue) + " rpm";
   }
-
-  //Calculate Vehicle speed
-  // I.E Returned bytes wil be 41 0C 1B E0
-  else if (command == PID_SPEED){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
-    return String(DisplayValue) + " km/h";
-  }
-
   //Coolant Temp
-  else if (command == PID_COOLANT_TEMP){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
+  else if (command == PID_COOLANT_TEMP)
+  {
+    pos = 0;
+    pos = result.indexOf(RES_PID_COOLANT_TEMP, pos);
+    result = result.substring(pos + 6, result.length());
+
+    WorkingString = result.substring(0, 2);
+    A = strtol(WorkingString.c_str(), NULL, 16) ;
+    DisplayValue = A - 40;
     return String(DisplayValue) + " C";
   }
-
-  //IAT Temp
-  else if (command == PID_IAT_TEMP){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
-    return String(DisplayValue) + " C";
-  }
-
-  //Air flow Rate
-  else if (command == PID_AIR_FLOW_RATE){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    WorkingString = result.substring(11,13);
-    B = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = ((A * 256)+B)/100;
-    return String(DisplayValue) + " g/s";
-  }
-
-  //Ambient Temp
-  else if (command == PID_AMBIENT_TEMP){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
-    return String(DisplayValue) + " C";
-  }
-
   //Throttle position
-  else if (command == PID_THROTTLE){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
+  else if (command == PID_THROTTLE)
+  {
+    pos = 0;
+    pos = result.indexOf(RES_PID_THROTTLE, pos);
+    result = result.substring(pos + 6, result.length());
+
+    WorkingString = result.substring(0, 2);
+    A = strtol(WorkingString.c_str(), NULL, 16);
+    DisplayValue = ( 100 * A ) / 255;
     return String(DisplayValue) + " %";
   }
+  //Fuel injection timing
+  else if (command == PID_FUEL_INJECTION_TIMING)
+  {
+    pos = 0;
+    pos = result.indexOf(RES_PID_FUEL_INJECTION_TIMING, pos);
+    result = result.substring(pos + 6, result.length());
 
-  //Barometric pressure
-  else if (command == PID_BAROMETRIC_PRESSURE){
-    WorkingString = result.substring(7,9);
-    A = strtol(WorkingString.c_str(),NULL,0);
-    DisplayValue = A;
-    return String(DisplayValue) + " kpa";
+    WorkingString = result.substring(0, 2);
+    A = strtol(WorkingString.c_str(), NULL, 16);
+
+    WorkingString = result.substring(3, 5);
+    B = strtol(WorkingString.c_str(), NULL, 16);
+
+    DisplayValue = ( 256 * A + B ) / 128 - 210;
+    return String(DisplayValue);
+  }
+  //Batery voltage
+  else if (command == PID_BAT_VOL)
+  {
+    return result;
   }
 
   else{

@@ -49,6 +49,9 @@
 #define ON            1u
 #define OFF           0u
 
+#define TRUE          1u
+#define FALSE         0u
+
 extern void pinModeTotal(void);
 
 #endif
