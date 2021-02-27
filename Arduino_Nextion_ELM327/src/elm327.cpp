@@ -80,7 +80,7 @@ String ELM327::query(String command){
     inData = elmSerial.read();
     inChar = char(inData);
     inString = inString + inChar;
-    delay(2);
+    delay(20);
     if ( strstr(inString.c_str(),"SEARCHING") != '\0' && firstDelayFlag == TRUE ){
       delay(TIME_FOR_SEARCHING);
       firstDelayFlag = FALSE;
@@ -102,7 +102,7 @@ String ELM327::query(String command){
 
 /* Below code is used for testing data extraction from response message */
 /* Remove this when testing with a real car*/
-#if 1
+#if 0
   if ((String)PID_RPM == command)
   {
     inString = "     ....01 0C41 0C 0B 02 >";
