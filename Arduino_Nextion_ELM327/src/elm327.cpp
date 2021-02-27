@@ -5,12 +5,33 @@
 
 #include "elm327.h"
 
+void ELM327::getDTCs(void)
+{
+  String str_rawDTCs = "";
+  String str_DTC1 = "";
+  String str_DTC2 = "";
+  String str_DTC3 = "";
+
+  str_rawDTCs = get(FIND_DTCs);
+  str_DTC1 = str_rawDTCs.substring(0,4);
+  str_DTC2 = str_rawDTCs.substring(4,8);
+  str_DTC3 = str_rawDTCs.substring(8,12);
+
+  convertDTC(str_DTC1);
+  convertDTC(str_DTC2);
+  convertDTC(str_DTC3);
+
+  Serial.println(str_DTC1);
+  Serial.println(str_DTC2);
+  Serial.println(str_DTC3);
+}
+
 void ELM327:: ELM327_init(void)
 {
   String result;
 
   elmSerial.begin(38400);
-  delay(DELAYLENGTH);
+  delay(TIME_FOR_CONNECTION);
 
 Retry:
   result = query("ATI");
@@ -21,7 +42,7 @@ Retry:
     Serial.println("ELM connected");
   }
   else{
-    delay(DELAYLENGTH);
+    delay(TIME_FOR_CONNECTION);
     // This really ought to return on failure.
     goto Retry;
   }
@@ -45,7 +66,7 @@ String ELM327::query(String command){
 
   // Spinlock's are perfectly valid :D
   while(spinlock){
-    if(millis() > (time + 4000)){
+    if(millis() > (time + TIME_OUT)){
       // TODO: Handle this condition in process();
       return "Timeout";
     }
@@ -56,16 +77,17 @@ String ELM327::query(String command){
   while(elmSerial.available() > 0){
     inData = 0;
     inChar = 0;
-    byte inData = elmSerial.read();
-    char inChar = char(inData);
+    inData = elmSerial.read();
+    inChar = char(inData);
     inString = inString + inChar;
     delay(2);
     if ( strstr(inString.c_str(),"SEARCHING") != '\0' && firstDelayFlag == TRUE ){
-      delay(2000);
+      delay(TIME_FOR_SEARCHING);
       firstDelayFlag = FALSE;
     }
   }
-  Serial.println(inString);
+  /* Just for debugging: print the whole response for a query - Serial.println(inString); */
+  // Serial.println(inString);
   inString.replace(command,"");
   inString.replace(">","");
   inString.replace("OK","");
@@ -77,6 +99,31 @@ String ELM327::query(String command){
   inString.replace("NO DATA","");
   inString.replace("?","");
   inString.replace(",","");
+
+/* Below code is used for testing data extraction from response message */
+/* Remove this when testing with a real car*/
+#if 1
+  if ((String)PID_RPM == command)
+  {
+    inString = "     ....01 0C41 0C 0B 02 >";
+  }
+  else if ((String)PID_COOLANT_TEMP == command)
+  {
+    inString = "  ...    01 0541 05 7C >   ";
+  }
+  else if ((String)PID_THROTTLE == command)
+  {
+    inString = "..    ..** 01 1141 11 30 ....>";
+  }
+  else if ((String)PID_FUEL_INJECTION_TIMING == command)
+  {
+    inString = "01 5D41 5D 10 30 >";
+  }
+  else if ((String)FIND_DTCs == command)
+  {
+    inString = "   ...0343 10 23 43 10 C1 79 >";
+  }
+#endif
 
   return inString;
 }
@@ -92,6 +139,11 @@ String ELM327::process(String command, String result){
   String WorkingString="";
   size_t pos;
 
+  if(strstr(result.c_str(), "UNABLE TO CONNECT"))
+  {
+    return "UNABLE TO CONNECT";
+  }
+
   //Check which OBD Command was sent and calculate VALUE
   //Calculate RPM I.E Returned bytes wil be 41 0C 1B E0
   if (command == PID_RPM)
@@ -101,14 +153,10 @@ String ELM327::process(String command, String result){
     result = result.substring(pos + 6, result.length());
 
     WorkingString = result.substring(0, 2);
-    // Serial.println(WorkingString);
     A = strtol(WorkingString.c_str(), NULL, 16);
-    // Serial.println(A);
 
     WorkingString = result.substring(3, 5);
-    // Serial.println(WorkingString);
     B = strtol(WorkingString.c_str(), NULL, 16);
-    // Serial.println(B);
    
     DisplayValue = ( ( A * 256 ) + B ) / 4;
     return String(DisplayValue) + " rpm";
@@ -157,6 +205,15 @@ String ELM327::process(String command, String result){
   else if (command == PID_BAT_VOL)
   {
     return result;
+  }
+  else if (command == FIND_DTCs)
+  {
+    pos = 0;
+    pos = result.indexOf(RES_FIND_DTCs, pos);
+    result = result.substring(pos + 3, result.length());
+    result.replace(" ","");
+    result.replace(">","");
+    return result; 
   }
 
   else{

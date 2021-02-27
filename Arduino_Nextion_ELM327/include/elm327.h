@@ -27,8 +27,11 @@
 #include "Arduino_HW.h"
 #include "HardwareSerial.h"
 #include "PID.h"
+#include "LookupDTC.h"
 
-#define DELAYLENGTH 500
+#define TIME_FOR_CONNECTION 500
+#define TIME_FOR_SEARCHING  2000
+#define TIME_OUT            4000
 
 #define elmSerial Serial3
 
@@ -37,6 +40,7 @@ class ELM327
   public:
     void ELM327_init(void);
     String get(String command);
+    void getDTCs(void);
   private:
     String query(String command);
     String process(String command, String result);

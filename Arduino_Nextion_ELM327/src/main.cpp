@@ -24,12 +24,21 @@ void loop() {
   if (Serial.available())
   {
     b = Serial.read();
-    if(b != char(13)){
+
+    if(b != char(13))
+    {
       a = a + b;
     }
-    else{
-      // Serial.println(a);
-      Serial.println(myELM.get(a));
+    else
+    {
+      if(a == FIND_DTCs)
+      {
+        myELM.getDTCs();
+      }
+      else
+      {
+        Serial.println(myELM.get(a));
+      }
       a = "";
     }
   }

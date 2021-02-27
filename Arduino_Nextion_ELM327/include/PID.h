@@ -32,6 +32,8 @@
 #define RES_PID_THROTTLE                  "41 11" // Implemented
 #define RES_PID_FUEL_INJECTION_TIMING     "41 5D" // (((A*256)+B)-26,880)/128
 
+#define FIND_DTCs                         "03"
+#define RES_FIND_DTCs                     "43"
 
 // These are a special case. A contains oxygen sensor, B contains fuel trim.
 #define PID_OXYGEN_SENSOR_VOLTAGE_B1_S1   "01 14" // A/200
