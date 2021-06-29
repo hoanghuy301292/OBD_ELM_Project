@@ -68,6 +68,38 @@ extern NexNumber n43;
 
 extern NexNumber num;
 
+extern NexGauge g2;
+extern NexGauge g3;
+extern NexGauge g4;
+extern NexGauge g5;
+extern NexProgressBar pB20;
+extern NexProgressBar pB30;
+extern NexProgressBar pB40;
+extern NexProgressBar pB50;
+
+extern NexText t21;
+extern NexText t31;
+extern NexText t41;
+extern NexText t51;
+
+extern NexText t22;
+extern NexText t24;
+extern NexText t25;
+extern NexText t26;
+extern NexText t27;
+
+extern NexText t32;
+extern NexText t34;
+extern NexText t35;
+extern NexText t36;
+extern NexText t37;
+
+extern NexText t42;
+extern NexText t44;
+extern NexText t45;
+extern NexText t46;
+extern NexText t47;
+
 extern NexTouch *nex_listen_list[];
 
 extern void b1PushCallback(void *ptr);

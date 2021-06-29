@@ -5,25 +5,39 @@
 
 #include "elm327.h"
 
-void ELM327::getDTCs(void)
+String ELM327::getDTCs(void)
 {
   String str_rawDTCs = "";
-  String str_DTC1 = "";
-  String str_DTC2 = "";
-  String str_DTC3 = "";
+  String str_resultDTCs = "";
+  
+  uint8 uc_lenOfRawDTCs = 0;
+  uint8 uc_numOfDTCs = 0;
 
   str_rawDTCs = get(FIND_DTCs);
-  str_DTC1 = str_rawDTCs.substring(0,4);
-  str_DTC2 = str_rawDTCs.substring(4,8);
-  str_DTC3 = str_rawDTCs.substring(8,12);
+  // Serial.println("Do dai Ma loi sau khi xu li lan 1:");
+  // Serial.println(str_rawDTCs.length());
+  if(str_rawDTCs.length() < 6)
+  {
+      str_resultDTCs = str_rawDTCs;
+  }
+  else
+  {
+      uc_lenOfRawDTCs = str_rawDTCs.length();
+      uc_numOfDTCs = uc_lenOfRawDTCs / 4;
 
-  convertDTC(str_DTC1);
-  convertDTC(str_DTC2);
-  convertDTC(str_DTC3);
+      String *p_strDTC = new String[uc_numOfDTCs];
 
-  Serial.println(str_DTC1);
-  Serial.println(str_DTC2);
-  Serial.println(str_DTC3);
+      for(uint8 i = 0; i < uc_numOfDTCs; i++)
+      {
+        p_strDTC[i] = str_rawDTCs.substring(4*i, 4*(i+1));
+        convertDTC((p_strDTC[i]));
+        str_resultDTCs = str_resultDTCs + p_strDTC[i];
+      }
+
+      delete p_strDTC;
+  }
+
+  return str_resultDTCs;
 }
 
 void ELM327:: ELM327_init(void)
@@ -64,6 +78,13 @@ String ELM327::query(String command){
   time = millis();
   bool firstDelayFlag = TRUE;
 
+  if (command == FIND_DTCs || command == CLEAR_DTCs)
+  {
+    delay(500);
+  }
+  else{
+    delay(100);
+  }
   // Spinlock's are perfectly valid :D
   while(spinlock){
     if(millis() > (time + TIME_OUT)){
@@ -80,7 +101,7 @@ String ELM327::query(String command){
     inData = elmSerial.read();
     inChar = char(inData);
     inString = inString + inChar;
-    delay(20);
+    delay(2);
     if ( strstr(inString.c_str(),"SEARCHING") != '\0' && firstDelayFlag == TRUE ){
       delay(TIME_FOR_SEARCHING);
       firstDelayFlag = FALSE;
@@ -100,16 +121,21 @@ String ELM327::query(String command){
   inString.replace("?","");
   inString.replace(",","");
 
+  if (command == CLEAR_DTCs)
+  {
+    inString ="";
+  }
+
 /* Below code is used for testing data extraction from response message */
 /* Remove this when testing with a real car*/
 #if 0
   if ((String)PID_RPM == command)
   {
-    inString = "     ....01 0C41 0C 0B 02 >";
+    inString = "     ....01 0C41 0C 1E FF >";
   }
   else if ((String)PID_COOLANT_TEMP == command)
   {
-    inString = "  ...    01 0541 05 7C >   ";
+    inString = "  ...    01 0541 05 5C >   ";
   }
   else if ((String)PID_THROTTLE == command)
   {
@@ -121,10 +147,18 @@ String ELM327::query(String command){
   }
   else if ((String)FIND_DTCs == command)
   {
-    inString = "   ...0343 10 23 43 10 C1 79 >";
+    inString = "   ...0747 10 23 43 10 C1 79 >";
+  }
+    else if ((String)PID_BAT_VOL == command)
+  {
+    inString = "13.1 V";
+  }
+  else
+  {
+
   }
 #endif
-
+  
   return inString;
 }
 
@@ -210,7 +244,7 @@ String ELM327::process(String command, String result){
   {
     pos = 0;
     pos = result.indexOf(RES_FIND_DTCs, pos);
-    result = result.substring(pos + 3, result.length());
+    result = result.substring(pos + 5, result.length());
     result.replace(" ","");
     result.replace(">","");
     return result; 

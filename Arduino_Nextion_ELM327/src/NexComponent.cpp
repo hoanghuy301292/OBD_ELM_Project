@@ -1,8 +1,14 @@
 #include "NexComponent.h"
 #include "NexWriteData.h"
 #include "GlobalVar.h"
+#include "Nex_ELM_Combine.h"
+
+extern bool b_readDTCRequest;
+extern bool b_clearDTCRequest;
 // Nextion Objects
 // (page id, component id, component name)
+NexButton bclear = NexButton(5, 2, "r1");
+
 NexDSButton b1  = NexDSButton(2,  1,  "cb1");
 NexDSButton b2  = NexDSButton(2,  2,  "cb2");
 NexDSButton b3  = NexDSButton(2,  3,  "cb3");
@@ -64,8 +70,41 @@ NexNumber n41 = NexNumber(4, 18, "n1");
 NexNumber n42 = NexNumber(4, 23, "n2");
 NexNumber n43 = NexNumber(4, 21, "n3");
 
+NexGauge g2 = NexGauge(2, 23, "sp");
+NexGauge g3 = NexGauge(3, 24, "sp");
+NexGauge g4 = NexGauge(4, 16, "sp");
+NexGauge g5 = NexGauge(5,  2, "sp");
+
+NexProgressBar pB20 = NexProgressBar(2, 25, "j0");
+NexProgressBar pB30 = NexProgressBar(3, 23, "j0");
+NexProgressBar pB40 = NexProgressBar(4, 15, "j0");
+NexProgressBar pB50 = NexProgressBar(5,  4, "j0");
+
+NexText t21 = NexText(2, 26, "t1");
+NexText t31 = NexText(3, 28, "t1");
+NexText t41 = NexText(4, 20, "t1");
+
+NexText t22 = NexText(2, 36, "t2");
+NexText t24 = NexText(2, 32, "t4");
+NexText t25 = NexText(2, 33, "t5");
+NexText t26 = NexText(2, 34, "t6");
+NexText t27 = NexText(2, 35, "t7");
+
+NexText t32 = NexText(3, 36, "t2");
+NexText t34 = NexText(3, 32, "t4");
+NexText t35 = NexText(3, 33, "t5");
+NexText t36 = NexText(3, 34, "t6");
+NexText t37 = NexText(3, 35, "t7");
+
+NexText t42 = NexText(4, 28, "t2");
+NexText t44 = NexText(4, 24, "t4");
+NexText t45 = NexText(4, 25, "t5");
+NexText t46 = NexText(4, 26, "t6");
+NexText t47 = NexText(4, 27, "t7");
+
 // Register objects to the touch event list
 NexTouch *nex_listen_list[] = {
+  &bclear,
   &b1,
   &b2,
   &b3,
@@ -114,6 +153,12 @@ NexTouch *nex_listen_list[] = {
   &c3,
   NULL
 };
+
+void bclearPushCallback(void *ptr)
+{
+    b_clearDTCRequest = true;
+    // nexClearAndUpdateReadDTCs();
+}
 
 void b1PushCallback(void *ptr) {
     uint32 value;
@@ -356,32 +401,36 @@ void b40PushCallback(void *ptr) {
 }
 
 void r1PushCallback(void *ptr) {
-    NexWriteData(g_n0Val, g_n1Val, g_n2Val, g_n3Val);
+    b_readDTCRequest = true;
+    // nexUpdateReadDTCs();
 }
 
 void r2PushCallback(void *ptr) {
-    NexWriteData(g_n0Val, g_n1Val, g_n2Val, g_n3Val);
+    b_readDTCRequest = true;
+    // nexUpdateReadDTCs();
 }
 
 void r3PushCallback(void *ptr) {
-    NexWriteData(g_n0Val, g_n1Val, g_n2Val, g_n3Val);
+    b_readDTCRequest = true;
+    // nexUpdateReadDTCs();
 }
 
-void c1PopCallback(void *ptr) {
-  Serial.println("clear1");
-}
+// void c1PopCallback(void *ptr) {
+//     nexClearAndUpdateReadDTCs();
+// }
 
-void c2PopCallback(void *ptr) {
-  Serial.println("clear2");
-}
+// void c2PopCallback(void *ptr) {
+//     nexClearAndUpdateReadDTCs();
+// }
 
-void c3PopCallback(void *ptr) {
-  Serial.println("clear3");
-}
+// void c3PopCallback(void *ptr) {
+//     nexClearAndUpdateReadDTCs();
+// }
 
 void nexRegisterCbk( void )
 {
   // Register the push/pop event callback function
+  bclear.attachPush(bclearPushCallback, &bclear);
   b1.attachPush(b1PushCallback, &b1);
   b2.attachPush(b2PushCallback, &b2);
   b3.attachPush(b3PushCallback, &b3);
@@ -426,8 +475,8 @@ void nexRegisterCbk( void )
   r1.attachPush(r1PushCallback, &r1);
   r2.attachPush(r2PushCallback, &r2);
   r3.attachPush(r3PushCallback, &r3);
-  c1.attachPop(c1PopCallback, &c1);
-  c2.attachPop(c2PopCallback, &c2);
-  c3.attachPop(c3PopCallback, &c3);
+//   c1.attachPop(c1PopCallback, &c1);
+//   c2.attachPop(c2PopCallback, &c2);
+//   c3.attachPop(c3PopCallback, &c3);
 
 }

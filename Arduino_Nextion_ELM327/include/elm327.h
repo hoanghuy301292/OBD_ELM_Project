@@ -28,6 +28,7 @@
 #include "HardwareSerial.h"
 #include "PID.h"
 #include "LookupDTC.h"
+#include "utypedef.h"
 
 #define TIME_FOR_CONNECTION 500
 #define TIME_FOR_SEARCHING  2000
@@ -40,7 +41,7 @@ class ELM327
   public:
     void ELM327_init(void);
     String get(String command);
-    void getDTCs(void);
+    String getDTCs(void);
   private:
     String query(String command);
     String process(String command, String result);

@@ -29,6 +29,8 @@ const DTC_CONV_TBL mSt_DtcConvertTable [SIZE_OF_DTC_CONVERT_TABLE]={
   {"F", "U3"}
 };
 
+// void convertDTC(String *str_DTC);
+
 void convertDTC(String &str_DTC);
 
 #endif

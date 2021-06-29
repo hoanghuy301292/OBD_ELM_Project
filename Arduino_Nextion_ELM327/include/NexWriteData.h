@@ -3,6 +3,7 @@
 
 #include "utypedef.h"
 
-extern void NexWriteData(uint32 data0, uint32 data1, uint32 data2, uint32 data3);
+void nexWriteData(String str_rpm, String str_engineTemp, String str_throttle, String str_batVol);
+void nexWriteDTCs(String str_DTCs);
 
 #endif
